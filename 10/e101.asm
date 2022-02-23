@@ -52,9 +52,9 @@ show:
     mov cx,[si]
     inc si
     jcxz return ; 内容为0时return
-    mov es[di],cx ; 低位字节存储ASCII码
+    mov es:[di],cx ; 低位字节存储ASCII码
     inc di
-    mov es[di],bx ; 高位字节存储字符属性
+    mov es:[di],bx ; 高位字节存储字符属性
     inc di
     jmp show
 return:
