@@ -33,7 +33,7 @@ s:      mov al,[bx]     ; 低自己存储ASCII数据
         mov [bp],al     ; 0
 
         add bp,4        ; 将bp指向显存中 masm! 首字母的字符属性位置
-        mov al,91h      ; 白底蓝字
+        mov al,71h      ; 白底蓝字
         mov cx,5        ; masm! 有5个字符
 blue:   mov [bp],al
         add bp,2
