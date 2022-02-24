@@ -1,3 +1,4 @@
+; 分析一个奇怪的程序，思考这个程序可以正常返回吗？为什么
 assume cs:codesg
 
 codesg segment
