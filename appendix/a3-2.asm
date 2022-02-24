@@ -1,10 +1,10 @@
 assume cs:code
-; Æ«ÒÆÁ¿Î»ÓÚ[-32768£¬32767]Ö®¼ä£¬±àÒëÆ÷¶¼½«Ê¹ÓÃ¶Ì×ªÒÆ£»EBÆ«ÒÆÁ¿
+; åç§»é‡ä½äº[-32768ï¼Œ32767]ä¹‹é—´ï¼Œç¼–è¯‘å™¨éƒ½å°†ä½¿ç”¨çŸ­è½¬ç§»ï¼›EBåç§»é‡
 code segment
 s:	db 100 dup (0b8h,0,0)
-	jmp s		;»áÊ¹ÓÃjmp near; E9 xx
-	;jmp short s	;»á±¨´í
-	jmp near ptr s	;»áÊ¹ÓÃjmp near; E9 xx
-	jmp far ptr s	;»áÊ¹ÓÃjmp far; EA xxxx
+	jmp s		;ä¼šä½¿ç”¨jmp near; E9 xx
+	;jmp short s	;ä¼šæŠ¥é”™
+	jmp near ptr s	;ä¼šä½¿ç”¨jmp near; E9 xx
+	jmp far ptr s	;ä¼šä½¿ç”¨jmp far; EA xxxx
 code ends
 end s

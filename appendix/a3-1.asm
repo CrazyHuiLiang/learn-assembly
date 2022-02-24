@@ -1,5 +1,5 @@
 assume cs:code
-; ƫ����λ��[-128��127]֮�䣬����������ʹ�ö�ת�ƣ�EBƫ����
+; 偏移量位于[-128，127]之间，编译器都将使用短转移；EB偏移量
 code segment
 s:	jmp s
 	jmp short s
