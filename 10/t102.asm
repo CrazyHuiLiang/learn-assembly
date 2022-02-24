@@ -24,7 +24,13 @@ start:
         mov ss,ax
         mov sp,16
 
-        jmp dword ptr ds:[0]
+        ; jmp to 1000:0
+        mov ax,1000h
+        push ax
+        mov ax,0h
+        push ax
+        mov bp,sp
+        jmp dword ptr [bp]
 code ends
 
 end start
