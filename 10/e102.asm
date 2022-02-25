@@ -15,7 +15,7 @@ stack ends
 
 
 code segment
-
+start:
 ; 设置栈，用于后续子程序暂存寄存器中的数值使用
 mov ax,stack
 mov ss,ax
@@ -66,7 +66,7 @@ divdw:
 
 code ends
 
-end
+end start
 
 
 
