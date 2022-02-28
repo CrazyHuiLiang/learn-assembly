@@ -42,12 +42,46 @@ toc:
     jmp toc
 
 return_dtoc:
-    mov byte ptr [si],0          ; 字符串以0结尾
+    mov byte ptr [si],0 ; 字符串以0结尾
     pop si
     pop cx
     pop dx
     pop ax
+    call revert_str     ; 目前转换后的字符串时倒叙的，需要进行翻转
     ret
+
+; 将一个字符串中的字符进行翻转，字符串以0为结尾符
+; 参数
+;   ds:si指向字符串的首地址
+revert_str:
+    ; cache register
+    push cx
+    push bx
+    push di
+
+    mov di,si       ; 用di暂存si
+    mov bx,0        ; 用于记录字符串长度
+push_str:
+    mov ch,0
+    mov cl,[si]     ; 将字符取出
+    push cx
+    inc cx          ; 字符值+1，为配合下面的loop
+    inc si          ; 指向下一个字符
+    inc bx          ; 字符长度加一
+    loop push_str   ; 持续压栈取出的字符
+    sub si,di       ; 将si恢复至首字符位置
+pop_str:
+    pop cl          ; 从栈中取出一个字符
+    mov [si],cl
+    mov cx,bx
+    sub bx,1
+    loop pop_str    ; 从栈中将所有字符取出
+
+    pop di
+    pop bx
+    pop cx
+ret
+
 
 ; 不会产生溢出的除法运算，被除数为dword型，除数为word型，结果为dword型
 ; 参数：
