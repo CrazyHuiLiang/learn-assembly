@@ -17,7 +17,7 @@ start:
     mov dh,8
     mov dl,3
     mov cl,2
-    call show
+    call show_str
 
 ; 将word型数据转变为表示十进制数的字符串，字符串以0为结尾符。
 ; 参数
@@ -89,16 +89,36 @@ divdw:
 ;   (dl)=列号，取值范围[0,79]
 ;   (cl)=颜色
 ;   ds:si 指向字符串的首地址
+show_str:
+    ; 保存程序中要用到的寄存器
+    mov bl,cl ; 将颜色信息暂存至bl中（因为后续jcxz需要用到cx）
+    mov bh,0
+
+    ; 行列位置与显存地址的对应关系
+        ; B8000H~B8F9FH中的内容将出现在显示器上
+        ; 显示器可以显示25行，每行80个字符
+        ; 每个字符占两个字节的存储空间，低位字节存储字符的ASCII码，高位字节存储字符的属性
+    ; es:di 指向输出位置
+    mov ax,0B800H
+    mov es,ax
+    mov al,160 ; 一行80个字符，占160
+    mul dh
+    mov di,ax
+    mov al,2 ; 一个输出字符占两个字节
+    mul dl
+    add di,ax
+
+    ; 将字符转移至屏幕输出
 show:
     mov cx,[si]
     inc si
-    jcxz return_show ; 内容为0时return
+    jcxz return_show_str ; 内容为0时return
     mov es:[di],cx ; 低位字节存储ASCII码
     inc di
     mov es:[di],bx ; 高位字节存储字符属性
     inc di
     jmp show
-return_show:
+return_show_str:
     mov cl,bl ; 还原cl寄存器
     ret
 code ends
