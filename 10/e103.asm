@@ -73,14 +73,20 @@ push_str:
     inc si          ; 指向下一个字符
     inc bx          ; 字符长度加一
     loop push_str   ; 持续压栈取出的字符
-    sub si,di       ; 将si恢复至首字符位置
+
+    mov si,di       ; 将si恢复至首字符位置
+    pop cx          ; 舍弃最后push进栈中的0
+    sub bx,1
 pop_str:
     pop cx          ; 从栈中取出一个字符
     mov [si],cl
+    inc si
     mov cx,bx
     sub bx,1
     loop pop_str    ; 从栈中将所有字符取出
 
+    ; restore register
+    mov si,di
     pop di
     pop bx
     pop cx
