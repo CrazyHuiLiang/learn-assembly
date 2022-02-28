@@ -19,6 +19,10 @@ start:
     mov cl,2
     call show_str
 
+    ; 程序结束
+    mov ax,4c00H
+    int 21H
+
 ; 将word型数据转变为表示十进制数的字符串，字符串以0为结尾符。
 ; 参数
 ;   (ax)=word型数据
@@ -71,7 +75,7 @@ push_str:
     loop push_str   ; 持续压栈取出的字符
     sub si,di       ; 将si恢复至首字符位置
 pop_str:
-    pop cl          ; 从栈中取出一个字符
+    pop cx          ; 从栈中取出一个字符
     mov [si],cl
     mov cx,bx
     sub bx,1
