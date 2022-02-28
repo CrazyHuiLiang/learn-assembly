@@ -30,7 +30,7 @@ call divdw
 mov ax,4c00H
 int 21h
 
-
+; 不会产生溢出的除法运算，被除数为dword型，除数为word型，结果为dword型
 ; 参数：
     ; (ax)=dword型数据的低16位
     ; (dx)=dword型数据的高16位
