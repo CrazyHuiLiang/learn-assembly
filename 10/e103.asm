@@ -17,7 +17,7 @@ start:
     mov dh,8
     mov dl,3
     mov cl,2
-    call show_str
+    call show
 
 ; 将word型数据转变为表示十进制数的字符串，字符串以0为结尾符。
 ; 参数
@@ -38,11 +38,11 @@ toc:
     mov [si],cl
     inc si              ; 字符串指向下一个字符位置
     mov cx,ax
-    jcxz return_ctoc    ; (cx)=0时，返回
+    jcxz return_dtoc    ; (cx)=0时，返回
     jmp toc
 
 return_dtoc:
-    mov [si],0          ; 字符串以0结尾
+    mov byte ptr [si],0          ; 字符串以0结尾
     pop si
     pop cx
     pop dx
@@ -92,12 +92,12 @@ divdw:
 show:
     mov cx,[si]
     inc si
-    jcxz return ; 内容为0时return
+    jcxz return_show ; 内容为0时return
     mov es:[di],cx ; 低位字节存储ASCII码
     inc di
     mov es:[di],bx ; 高位字节存储字符属性
     inc di
-    jmp return_show
+    jmp show
 return_show:
     mov cl,bl ; 还原cl寄存器
     ret
