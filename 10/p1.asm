@@ -102,29 +102,35 @@ per_employee_income:
     mov ss,ax
     mov sp,16
 
-    mov ax,table ; 使用es指向table
-    mov es,ax
-
-    ; 用绿色显示(8位分别代表 闪烁，背景R，背景G，背景B，高亮，前景R，前景G，前景B）
-    mov cl,10B
-
     ; data段中的字符串
     mov ax,printBuffer
     mov ds,ax
-    mov si,0
 
+    mov ax,table ; 因为需要使用ds指向用于显示的缓存位置，故换用es指向table
+    mov es,ax
 
     mov bx,0        ; bx指向table的行
     mov cx,21       ; 共有21个数据
-    mov dh,4
-    mov dl,1
+    mov dh,4        ; 从屏幕第4行开始显示
+call_show_str:
+    push cx         ; 因为下方调用需要用到cl，故暂存cx
+    mov cl,10B      ; 用绿色显示(8位分别代表 闪烁，背景R，背景G，背景B，高亮，前景R，前景G，前景B）
+
+    ; 显示年份
+    mov si,0
+    mov dl,0        ; 从屏幕左边起始位置开始显示
     mov ax,es:[bx+0]
     mov ds:[si+0],ax
     mov ax,es:[bx+2]
     mov ds:[si+2],ax
+    mov byte ptr ds:[si+3],0
+    call show_str   ; 调用子程序进行显示
 
-    ; 调用子程序进行显示
-    call show_str
+    inc dh
+    add bx,16
+    pop cx
+    loop call_show_str
+
 
     mov ax,4c00h
     int 21h
