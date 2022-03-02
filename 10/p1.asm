@@ -236,13 +236,13 @@ show:
     mov ch,0
     mov cl,[si]
     inc si
-    jcxz return ; 内容为0时return
+    jcxz return_show_str ; 内容为0时return
     mov es:[di],cl ; 低位字节存储ASCII码
     inc di
     mov es:[di],bl ; 高位字节存储字符属性
     inc di
     jmp show
-return:
+return_show_str:
     mov cl,bl ; 还原cl寄存器
     pop di
     pop si
