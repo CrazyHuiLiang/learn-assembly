@@ -21,7 +21,7 @@ table segment
     db 21 dup ('year summ ne ?? ')
 table ends
 printBuffer segment ; 用于向屏幕输出的字符串的缓存
-    db 16 dup (0)
+    db 128 dup (0)
 printBuffer ends
 stack segment
     db 16 dup (0)
@@ -102,13 +102,14 @@ per_employee_income:
     mov ss,ax
     mov sp,16
 
+    ; 清屏
+    call clear_v1
+
     ; data段中的字符串
     mov ax,printBuffer
     mov ds,ax
-
     mov ax,table ; 因为需要使用ds指向用于显示的缓存位置，故换用es指向table
     mov es,ax
-
     mov bx,0        ; bx指向table的行
     mov cx,21       ; 共有21个数据
     mov dh,4        ; 从屏幕第4行开始显示
@@ -116,24 +117,91 @@ call_show_str:
     push cx         ; 因为下方调用需要用到cl，故暂存cx
     mov cl,10B      ; 用绿色显示(8位分别代表 闪烁，背景R，背景G，背景B，高亮，前景R，前景G，前景B）
 
-    ; 显示年份
+    ; 显示年份（占据0至3列，共4列）
     mov si,0
     mov dl,0        ; 从屏幕左边起始位置开始显示
     mov ax,es:[bx+0]
     mov ds:[si+0],ax
     mov ax,es:[bx+2]
     mov ds:[si+2],ax
-    mov byte ptr ds:[si+3],0
+    mov byte ptr ds:[si+4],0 ; 字符串以0结尾
     call show_str   ; 调用子程序进行显示
-
-    inc dh
-    add bx,16
-    pop cx
+    inc dh          ; 下一行打印位置
+    add bx,16       ; 下一行年份数据
+    pop cx          ; 还原cx
     loop call_show_str
 
 
+    ; 打印收入（占8至17列，共10列）
+
+
+    ; 打印人数（占据22至31列，共10列）
+
+
+
+    ; 打印人均收入（占据36至40列，共5列）
+
+
+
+
+
+
+
+
+exit:
     mov ax,4c00h
     int 21h
+
+
+; 清屏（在屏幕中全部显示为空格）:目前方法绕弯了，直接写一个清屏的函数，采用直接向显存写入0更简单也更高效
+clear_v1:
+    push ax
+    push ds
+    push si
+    push cx
+    push dx
+    mov ax,printBuffer
+    mov ds,ax
+    mov si,0
+    mov ax,80       ; 打印80个空格
+    mov cx,25
+    call prepare_white_space
+    mov dh,0        ; 从第4行开始
+    mov dl,0        ; 从第0列开始
+fill_space:
+    push cx         ; 因为下方调用需要用到cl，故暂存cx
+    mov cl,00000111B    ; 8位分别代表 闪烁，背景R，背景G，背景B，高亮，前景R，前景G，前景B
+    call show_str   ; da
+    inc dh
+    pop cx
+    loop fill_space
+    pop dx
+    pop cx
+    pop si
+    pop ax
+    mov ds,ax
+    pop ax
+ret
+
+
+; 准备空格数
+; 参数
+;   (ax)=空格数目
+;   (ds:[si])=写入tab的位置
+prepare_white_space:
+    push bx
+    push cx
+    mov cx,ax
+    mov bx,0
+fill_white_space:
+    mov byte ptr ds:[si+bx],32
+    inc bx
+    loop fill_white_space
+    mov byte ptr ds:[si+bx],0
+    pop cx
+    pop bx
+    ret
+
 
 ; 在指定的位置，用指定的颜色，显示一个用0结束的字符串
 ; 参数
@@ -148,10 +216,8 @@ show_str:
     push es
     push si
     push di
-
     mov bl,cl ; 将颜色信息暂存至bl中（因为后续jcxz需要用到cx）
     mov bh,0
-
     ; 行列位置与显存地址的对应关系
         ; B8000H~B8F9FH中的内容将出现在显示器上
         ; 显示器可以显示25行，每行80个字符
@@ -165,15 +231,15 @@ show_str:
     mov al,2 ; 一个输出字符占两个字节
     mul dl
     add di,ax
-
     ; 将字符转移至屏幕输出
 show:
-    mov cx,[si]
+    mov ch,0
+    mov cl,[si]
     inc si
     jcxz return ; 内容为0时return
-    mov es:[di],cx ; 低位字节存储ASCII码
+    mov es:[di],cl ; 低位字节存储ASCII码
     inc di
-    mov es:[di],bx ; 高位字节存储字符属性
+    mov es:[di],bl ; 高位字节存储字符属性
     inc di
     jmp show
 return:
@@ -188,6 +254,3 @@ return:
 
 code ends
 end start
-; 2d
-; 076c
-; 077a
