@@ -1,16 +1,16 @@
 ; 将data段中的数据以十进制的形式显示出来
 assume cs:code
 data segment
-    db 10 dup (0)
+    db 16 dup (0)
 data ends
 ; 内存中都是二进制信息，需要进行信息的转化（数值 转为 显卡使用的ASCII码）
 code segment
-; test case: 将12666以十进制形式在屏幕的8行3列，用绿色显示出来
 start:  
-    mov ax,12666
-    mov bx,data
-    mov ds,bx
+    ; test case: 将12666以十进制形式在屏幕的8行3列，用绿色显示出来
+    mov ax,data
+    mov ds,ax
     mov si,0
+    mov ax,12666
     call dtoc
 
     ; 显示
@@ -19,6 +19,7 @@ start:
     mov cl,2
     call show_str
 
+exit:
     ; 程序结束
     mov ax,4c00H
     int 21H
@@ -33,10 +34,10 @@ dtoc:
     push dx
     push cx
     push si
-
     ; convert num to ascii
 toc:
     mov cx,10           ; 存放进制（10) 作为被除数
+    mov dx,0            ; 被除数存于ax，dx置为0
     call divdw          ; 辗转相除
     add cl,30H          ; 取余，转化为ascii（因为除数为10，所以余数只占一个字节的cl，ch为0)
     mov [si],cl
@@ -62,7 +63,6 @@ revert_str:
     push cx
     push bx
     push di
-
     mov di,si       ; 用di暂存si
     mov bx,0        ; 用于记录字符串长度
 push_str:
@@ -84,7 +84,6 @@ pop_str:
     mov cx,bx
     sub bx,1
     loop pop_str    ; 从栈中将所有字符取出
-
     ; restore register
     mov si,di
     pop di
