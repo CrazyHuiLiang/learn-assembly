@@ -119,38 +119,156 @@ call_show_str:
 
     ; 显示年份（占据0至3列，共4列）
     mov si,0
-    mov dl,0        ; 从屏幕左边起始位置开始显示
+    mov dl,0        ; 从屏幕第0列开始显示
     mov ax,es:[bx+0]
     mov ds:[si+0],ax
     mov ax,es:[bx+2]
     mov ds:[si+2],ax
     mov byte ptr ds:[si+4],0 ; 字符串以0结尾
     call show_str   ; 调用子程序进行显示
+
+    ; 打印收入（占8至17列，共10列）
+    push dx         ; bd
+    mov ax,es:[bx+5]; ax存收入的低16位
+    mov dx,es:[bx+7]; dx存收入的高16位
+    mov si,0        ; 复位ds:si指向printBuffer开始位置
+    call ltoc       ; 将收入转为ascii字符串，写入ds:si
+    pop dx
+    mov dl,8        ; 从屏幕第8列开始显示
+    call show_str   ; 调用子程序进行显示
+
+    ; 打印人数（占据22至31列，共10列）
+    push dx
+    mov ax,es:[bx+10]; ax存人数
+    mov dx,0        ; dx置为0
+    mov si,0        ; 复位ds:si指向printBuffer开始位置
+    call ltoc       ; 将收入转为ascii字符串，写入ds:si
+    pop dx
+    mov dl,22       ; 从屏幕第22列开始显示
+    call show_str   ; 调用子程序进行显示
+
+
+    ; 打印人均收入（占据36至40列，共5列）
+    push dx
+    mov ax,es:[bx+13]; ax存人均收入
+    mov dx,0        ; dx置为0
+    mov si,0        ; 复位ds:si指向printBuffer开始位置
+    call ltoc       ; 将收入转为ascii字符串，写入ds:si
+    pop dx
+    mov dl,36       ; 从屏幕第22列开始显示
+    call show_str   ; 调用子程序进行显示
+
     inc dh          ; 下一行打印位置
     add bx,16       ; 下一行年份数据
     pop cx          ; 还原cx
     loop call_show_str
 
-
-    ; 打印收入（占8至17列，共10列）
-
-
-    ; 打印人数（占据22至31列，共10列）
-
-
-
-    ; 打印人均收入（占据36至40列，共5列）
-
-
-
-
-
-
-
-
 exit:
     mov ax,4c00h
     int 21h
+
+
+; 将dword型数据转变为表示十进制数的字符串，字符串以0为结尾符。
+; 参数
+;   (ax)=word型数据
+;   (dx)=word型数据
+;   ds:si指向字符串的首地址
+ltoc:
+    ; cache register
+    push ax
+    push dx
+    push cx
+    push si
+    ; convert num to ascii
+toc:
+    mov cx,10           ; 存放进制（10) 作为被除数
+    call divdw          ; 辗转相除
+    add cl,30H          ; 取余，转化为ascii（因为除数为10，所以余数只占一个字节的cl，ch为0)
+    mov [si],cl
+    inc si              ; 字符串指向下一个字符位置
+    mov cx,ax           ; 商为0时，结束辗转相除
+    or cx,dx
+    jcxz return_ltoc    ; (cx)=0时，返回
+    jmp toc
+return_ltoc:
+    mov byte ptr [si],0 ; 字符串以0结尾
+    pop si
+    pop cx
+    pop dx
+    pop ax
+    call revert_str     ; 目前转换后的字符串时倒叙的，需要进行翻转
+    ret
+
+; 将一个字符串中的字符进行翻转，字符串以0为结尾符
+; 参数
+;   ds:si指向字符串的首地址
+revert_str:
+    ; cache register
+    push cx
+    push bx
+    push di
+    mov di,si       ; 用di暂存si
+    mov bx,0        ; 用于记录字符串长度
+push_str:
+    mov ch,0
+    mov cl,[si]     ; 将字符取出
+    push cx
+    inc cx          ; 字符值+1，为配合下面的loop
+    inc si          ; 指向下一个字符
+    inc bx          ; 字符长度加一
+    loop push_str   ; 持续压栈取出的字符
+
+    mov si,di       ; 将si恢复至首字符位置
+    pop cx          ; 舍弃最后push进栈中的0
+    sub bx,1
+pop_str:
+    pop cx          ; 从栈中取出一个字符
+    mov [si],cl
+    inc si
+    mov cx,bx
+    sub bx,1
+    loop pop_str    ; 从栈中将所有字符取出
+    ; restore register
+    mov si,di
+    pop di
+    pop bx
+    pop cx
+ret
+
+
+; 不会产生溢出的除法运算，被除数为dword型，除数为word型，结果为dword型
+; 参数：
+    ; (ax)=dword型数据的低16位
+    ; (dx)=dword型数据的高16位
+    ; (cx)=除数
+; 返回：
+    ; (ax)=结果的低16位
+    ; (dx)=结果的高16位
+    ; (cx)=余数
+divdw:
+    ; 暂存寄存器
+    push bx
+    push si
+
+    ; 计算H/N
+    mov bx,ax ; 暂存被除数的低16位至 bx
+    mov ax,dx ; 让被除数的高16位，做被除数
+    mov dx,0
+    div cx      ; 16位除法, 此时 (AX) = int(H/N); (DX) = rem(H/N)
+
+    ; 计算 [rem(H/N)*FFFFH + L]/N ；这部分公式的含义可以解读为做一16位除法，除数仍在cx中， H/N 的余数作为被除数的高16位，divdw传入的被除数的低16位作为这次除法的低16位
+    mov si,ax ; 将H/N的商暂存于 si
+    mov ax,bx ; divdw传入的被除数的低16位作为这次除法的低16位; (此时 H/N 的余数在dx寄存器中，恰好作为此次除法的被除数的高16位）
+    div cx    ; 16位除法，此时 （AX）即使整个式子的商的低16位
+
+    ; X/N = int(H/N)*FFFFH + [rem(H/N)*FFFFH + L]/N
+    mov cx,dx ; [rem(H/N)*FFFFH + L]/N 是整个式子最终的余数，根据接口约定，余数存于cx中
+    mov dx,si ; H/N的商是整个式子的商的高16位，根据接口约定存于dx中；（整个式子的商的低16位已位于ax中，无需变动）
+
+    ; 还原之前寄存器中的值
+    pop si
+    pop bx
+    ret
 
 
 ; 清屏（在屏幕中全部显示为空格）:目前方法绕弯了，直接写一个清屏的函数，采用直接向显存写入0更简单也更高效
