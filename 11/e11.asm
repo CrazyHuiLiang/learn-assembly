@@ -1,6 +1,6 @@
 ; 编写一个子程序，将包含任意字符，已0结尾的字符串中的小写字母转变成为大写字母
 
-assume cs:code,ss:stack
+assume cs:code,ss:stack,ds:datasg
 datasg segment
     db "Beginner's All-purpose Symbolic Instruction Code.",0
 datasg ends
@@ -15,6 +15,11 @@ begin:
     mov ax,datasg
     mov ds,ax
     mov si,0
+
+    mov ax,stack
+    mov ss,ax
+    mov sp,32
+
     call letterc
 
 mov ax,4c00H
