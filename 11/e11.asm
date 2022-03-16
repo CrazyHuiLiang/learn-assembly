@@ -29,7 +29,7 @@ push ax
 
 letterc_loop:
 ; 取出字母
-mov al,ds.si
+mov al,[si]
 
 ; 判断是不是0，如果是0，结束后续处理
 cmp al,0
@@ -47,7 +47,7 @@ ja continue_letterc
 sub al,32
 
 ; 将大写字母写入内存区域
-mov ds.si,al
+mov [si],al
 
 ; 进行下一字节的读取
 continue_letterc:
