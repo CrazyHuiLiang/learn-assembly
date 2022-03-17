@@ -25,6 +25,11 @@ start:
     mov word ptr es:[0],200H
     mov word ptr es:[2],0
 
+; test case: 制造除法溢出
+    mov ax,1000H
+    mov bl,1
+    div bl
+
 mov ax,4c00H
 int 21H
 
