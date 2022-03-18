@@ -11,7 +11,7 @@ start:
     mov ss,ax
     mov sp,32
 ; 装载do0
-    mov ax,cx
+    mov ax,cs
     mov ds,ax
     mov si,offset do0
     mov ax,0
