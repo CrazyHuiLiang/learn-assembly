@@ -21,6 +21,9 @@ start:
     mov word ptr es:[7ch*4],200H
     mov word ptr es:[7ch*4+2],0
 
+; 运行测试用例
+    jmp test_case
+
 ; 中断程序
 lp: push bp
     mov bp,sp
