@@ -3,6 +3,7 @@
 ; bx 存放位移(到s的位移)
 assume cs:code
 code segment
+start:
 ; 安装程序
     mov ax,cs
     mov ds,ax
@@ -21,7 +22,7 @@ code segment
     mov word ptr es:[7ch*4+2],0
 
 ; 中断程序
-lp: push
+lp: push bp
     mov bp,sp
     dec cx
     jcxz lpret
