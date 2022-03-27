@@ -2,7 +2,7 @@
 ; cx 存储循环次数
 ; bx 存放位移(到s的位移)
 assume cs:code
-
+code segment
 ; 安装程序
     mov ax,cs
     mov ds,ax
@@ -51,5 +51,5 @@ se: nop
 
     mov ax,4c00H
     int 21H
-
+code ends
 end start
