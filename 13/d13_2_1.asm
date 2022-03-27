@@ -17,6 +17,12 @@ start:
     cld                             ; 设置传输方向为正
     rep movsb
 
+    ; 设置中断向量表
+    mov ax,0
+    mov es,ax
+    mov word ptr es:[7ch*4],200H
+    mov word ptr es:[7ch*4+2],0
+
     ; 跳转至测试代码
     jmp test_case
 
