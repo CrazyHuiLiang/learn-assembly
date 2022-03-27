@@ -7,7 +7,7 @@ code segment
 
 start:
     ; 安装中断例程
-    mov ax,cx
+    mov ax,cs
     mov ds,ax
     mov si,offset sqr               ; 设置ds:si指向源地址
     mov ax,0
