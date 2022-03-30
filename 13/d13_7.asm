@@ -3,7 +3,7 @@
 assume cs:code
 
 data segment
-    db 'Welcome to masm','$' ; $数据的边界，不显示
+    db 'Welcome to masm','$' ; $数据的边界(要显示的字符串需要用$作为结束符)，不显示
 data ends
 
 code segment
