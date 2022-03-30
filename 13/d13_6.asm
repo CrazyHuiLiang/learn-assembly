@@ -1,7 +1,7 @@
-; 在屏幕的第5行12列显示3个红底高亮闪烁绿色的"a"
+; 使用int 10H,在屏幕的第5行12列显示3个红底高亮闪烁绿色的"a"
 assume cs:code
 
-; int 10H 是BIOS
+; int 10H 是BIOS提供的中断例程
 code segment
     mov ah,2    ; 放置光标的子程序
     mov bh,0    ; 第0页
