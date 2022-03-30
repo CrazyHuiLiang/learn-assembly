@@ -6,6 +6,7 @@ db 'conversation',0
 data ends
 
 code segment
+start:
 ; 安装程序
     mov ax,cs
     mov ds,ax
