@@ -29,10 +29,13 @@ start:
 
 ; 中断程序
 jpn:
+    push bp ; 使用bp作为偏移地址，配合
+    mov bp,
     ; int 7cH中断触发后，当前的标志寄存器、CS和IP都要压栈，
     ; 此时压入的CS和IP的内容，分别是调用程序的段地址和int 7cH后一条指令的偏移地址（即标号se的偏移地址）
     ; 我们可以直接从栈中我们将栈中标号se的偏移地址加上bx中的转移位移，则栈中的se的偏移地址就变成了s的偏移地址；
     add [bp+2],bx   ; 下面我们再使用iret指令，用栈中的内容设置CS、IP，从而实现转移标号s处
+    pop bp
     iret
 jpnend:
     nop
@@ -58,3 +61,9 @@ ok: mov ax,4c00H
     int 21H
 code ends
 end start
+
+0b44:0040
+
+ss: 0b43
+sp: 0
+
