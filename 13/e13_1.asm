@@ -38,15 +38,30 @@ start:
 print: 
     push ax
     push bx
+    push cx
     push dx
+
+    mov dx,si   ; ds:dx指向字符串首地址，用于 call_print_int 标号
+
+    ; 将0结尾改为$结尾
+check0:
+    mov byte ptr cx,[si]
+    jcxz replace0       ; 如果当前字符是0，将其转换为$
+    inc si
+    jump check0
+replace0:
+    mov byte ptr [si],'$'
+
     mov ah,2    ; 置光标
     mov bh,0    ; 第0页
     int 10H
 
+call_print_int:
     mov ah,9
-    mov dx,si   ; ds:dx指向字符串首地址
     int 21H
+
     pop dx
+    pop cx
     pop bx
     pop ax
     iret
